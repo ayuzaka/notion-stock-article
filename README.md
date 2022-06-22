@@ -1,1 +1,1 @@
-# notion-store-article
+# notion-stock-article

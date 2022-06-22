@@ -1,19 +1,46 @@
-import { Form, ActionPanel, Action, showToast } from "@raycast/api";
+import { Form, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
+import { useEffect, useState } from "react";
+import type { Tag } from "./Notion";
+import { Notion } from "./Notion";
+import { fetchArticle } from "./util";
 
 type Values = {
-  textfield: string;
-  textarea: string;
-  datepicker: Date;
-  checkbox: boolean;
-  dropdown: string;
-  tokeneditor: string[];
+  url: string;
+  tags: string[];
 };
 
 export default function Command() {
-  function handleSubmit(values: Values) {
-    console.log(values);
-    showToast({ title: "Submitted form", message: "See logs for submitted values" });
+  const preference = getPreferenceValues<{ auth: string; databaseId: string }>();
+  const notionClient = new Notion(preference.auth);
+
+  const [tags, setTags] = useState<Tag[]>([]);
+
+  async function handleSubmit(values: Values) {
+    const { url, tags } = values;
+    const res = await fetchArticle(url);
+
+    if (res.type === "success") {
+      const { title, ogp } = res.data;
+      const response = await notionClient.stockArticle(preference.databaseId, { title, url, ogp, tags });
+      if (response.type === "failure") {
+        const { name, message } = response.err;
+        showToast({ title: name, message: message, style: Toast.Style.Failure });
+      } else {
+        showToast({ title: "stocked article", style: Toast.Style.Success });
+      }
+    } else {
+      const { name, message } = res.err;
+      showToast({ title: name, message: message, style: Toast.Style.Failure });
+    }
   }
+
+  useEffect(() => {
+    notionClient.fetchTags(preference.databaseId).then((res) => {
+      if (res) {
+        setTags(res);
+      }
+    });
+  }, []);
 
   return (
     <Form
@@ -24,16 +51,11 @@ export default function Command() {
       }
     >
       <Form.Description text="This form showcases all available form elements." />
-      <Form.TextField id="textfield" title="Text field" placeholder="Enter text" defaultValue="Raycast" />
-      <Form.TextArea id="textarea" title="Text area" placeholder="Enter multi-line text" />
-      <Form.Separator />
-      <Form.DatePicker id="datepicker" title="Date picker" />
-      <Form.Checkbox id="checkbox" title="Checkbox" label="Checkbox Label" storeValue />
-      <Form.Dropdown id="dropdown" title="Dropdown">
-        <Form.Dropdown.Item value="dropdown-item" title="Dropdown Item" />
-      </Form.Dropdown>
-      <Form.TagPicker id="tokeneditor" title="Tag picker">
-        <Form.TagPicker.Item value="tagpicker-item" title="Tag Picker Item" />
+      <Form.TextField id="url" title="URL" placeholder="Enter url" />
+      <Form.TagPicker id="tags" title="Tags">
+        {tags.map((tag) => (
+          <Form.TagPicker.Item key={tag.id + tag.name} value={tag.name} title={tag.name} />
+        ))}
       </Form.TagPicker>
     </Form>
   );

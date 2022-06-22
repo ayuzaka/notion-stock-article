@@ -1,3 +1,3 @@
-# notion-store-article Changelog
+# notion-stock-article Changelog
 
 ## [Initial Version] - 2022-06-19

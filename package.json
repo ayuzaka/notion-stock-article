@@ -1,23 +1,28 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "notion-store-article",
-  "title": "notion-store-article",
-  "description": "",
+  "name": "notion-stock-article",
+  "title": "notion-stock-article",
+  "description": "You can stock any web article into Notion",
   "icon": "command-icon.png",
   "author": "ayuzaka",
   "license": "MIT",
   "commands": [
     {
       "name": "index",
-      "title": "Submit Form",
-      "description": "Template for submitting a form",
+      "title": "Notion Stock Article",
+      "description": "You can stock any web article into Notion",
       "mode": "view"
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.36.1"
+    "@notionhq/client": "^1.0.4",
+    "@raycast/api": "^1.36.1",
+    "domutils": "^3.0.1",
+    "htmlparser2": "^8.0.1",
+    "isomorphic-fetch": "^3.0.0"
   },
   "devDependencies": {
+    "@types/isomorphic-fetch": "^0.0.36",
     "@types/node": "~16.10.0",
     "@types/react": "^17.0.28",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
@@ -32,5 +37,22 @@
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint"
-  }
+  },
+  "preferences": [
+    {
+      "name": "auth",
+      "description": "Notion Integration Token",
+      "type": "password",
+      "required": true,
+      "title": "Notion Integration Token",
+      "placeholder": "secret_xxxxxxx"
+    },
+    {
+      "name": "databaseId",
+      "description": "Notion Database ID",
+      "type": "textfield",
+      "required": true,
+      "title": "Notion Database ID"
+    }
+  ]
 }
