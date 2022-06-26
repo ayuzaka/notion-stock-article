@@ -50,7 +50,6 @@ export default function Command() {
         </ActionPanel>
       }
     >
-      <Form.Description text="This form showcases all available form elements." />
       <Form.TextField id="url" title="URL" placeholder="Enter url" />
       <Form.TagPicker id="tags" title="Tags">
         {tags.map((tag) => (
