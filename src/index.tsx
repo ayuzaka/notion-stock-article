@@ -16,7 +16,7 @@ export default function Command() {
   const [tags, setTags] = useState<Tag[]>([]);
 
   async function handleSubmit(values: Values) {
-    showToast({ title: 'saving...', style: Toast.Style.Animated })
+    showToast({ title: "saving...", style: Toast.Style.Animated });
 
     const { url, tags } = values;
     const res = await fetchArticle(url);
