@@ -80,7 +80,7 @@ export class Notion {
       return {
         type: "failure",
         err: {
-          name: "unexpected error",
+          name: "create page error",
           message: "failed to stock article",
         },
       };

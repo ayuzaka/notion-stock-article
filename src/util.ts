@@ -33,7 +33,7 @@ export async function fetchArticle(url: string): Promise<Result<ParsedDOM>> {
     return {
       type: "failure",
       err: {
-        name: "unexpected error",
+        name: "fetch error",
         message: "unexpected error has occurred.",
       },
     };
