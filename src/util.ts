@@ -54,12 +54,12 @@ function isOGP(elem: Element): boolean {
 
 function getOGP(document: Document): string | undefined {
   const metaElements = getElementsByTagName("meta", document);
-  const res = findOne(isOGP, metaElements);
-  if (!res) {
+  const hasOGP = findOne(isOGP, metaElements);
+  if (!hasOGP) {
     return undefined;
   }
 
-  return getAttributeValue(res, "content");
+  return getAttributeValue(hasOGP, "content");
 }
 
 function getTitle(document: Document): string {
