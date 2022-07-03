@@ -71,5 +71,5 @@ export function formatDate(date: Date): string {
   const month = (date.getMonth() + 1).toString();
   const day = date.getDate().toString();
 
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 }
