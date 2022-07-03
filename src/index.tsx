@@ -1,7 +1,7 @@
 import { Form, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
-import { useEffect, useState } from "react";
-import type { Tag } from "./useNotion";
-import { useNotion } from "./useNotion";
+import { Client } from "@notionhq/client";
+import { useTags } from "./useTags";
+import { stockArticle } from "./notion";
 import { fetchArticle } from "./util";
 
 type Values = {
@@ -12,9 +12,8 @@ type Values = {
 
 export default function Command() {
   const preference = getPreferenceValues<{ auth: string; databaseId: string }>();
-  const { stockArticle, fetchTags } = useNotion(preference.auth)
-
-  const [tags, setTags] = useState<Tag[]>([]);
+  const client = new Client({ auth: preference.auth });
+  const tags = useTags(client, preference.databaseId);
 
   async function handleSubmit(values: Values) {
     showToast({ title: "saving...", style: Toast.Style.Animated });
@@ -24,7 +23,7 @@ export default function Command() {
 
     if (res.type === "success") {
       const { title, ogp } = res.data;
-      const response = await stockArticle(preference.databaseId, { title, url, ogp, tags, createdAt });
+      const response = await stockArticle(client, preference.databaseId, { title, url, ogp, tags, createdAt });
       if (response.type === "failure") {
         const { name, message } = response.err;
         showToast({ title: name, message: message, style: Toast.Style.Failure });
@@ -37,14 +36,6 @@ export default function Command() {
     }
   }
 
-  useEffect(() => {
-     fetchTags(preference.databaseId).then((res) => {
-      if (res) {
-        setTags(res);
-      }
-    });
-  }, []);
-
   return (
     <Form
       actions={
@@ -55,7 +46,7 @@ export default function Command() {
     >
       <Form.TextField id="url" title="URL" placeholder="Enter url" />
       <Form.TagPicker id="tags" title="Tags">
-        {tags.map((tag) => (
+        {tags?.map((tag) => (
           <Form.TagPicker.Item key={tag.id + tag.name} value={tag.name} title={tag.name} />
         ))}
       </Form.TagPicker>
