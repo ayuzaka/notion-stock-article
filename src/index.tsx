@@ -7,6 +7,7 @@ import { fetchArticle } from "./util";
 type Values = {
   url: string;
   tags: string[];
+  createdAt: Date | null;
 };
 
 export default function Command() {
@@ -18,12 +19,12 @@ export default function Command() {
   async function handleSubmit(values: Values) {
     showToast({ title: "saving...", style: Toast.Style.Animated });
 
-    const { url, tags } = values;
+    const { url, tags, createdAt } = values;
     const res = await fetchArticle(url);
 
     if (res.type === "success") {
       const { title, ogp } = res.data;
-      const response = await notionClient.stockArticle(preference.databaseId, { title, url, ogp, tags });
+      const response = await notionClient.stockArticle(preference.databaseId, { title, url, ogp, tags, createdAt });
       if (response.type === "failure") {
         const { name, message } = response.err;
         showToast({ title: name, message: message, style: Toast.Style.Failure });
@@ -58,6 +59,7 @@ export default function Command() {
           <Form.TagPicker.Item key={tag.id + tag.name} value={tag.name} title={tag.name} />
         ))}
       </Form.TagPicker>
+      <Form.DatePicker id="createdAt" title="createdAt" type={Form.DatePicker.Type.Date} />
     </Form>
   );
 }

@@ -1,6 +1,7 @@
 import { APIResponseError, Client } from "@notionhq/client";
 import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
 import { Result } from "./types";
+import { formatDate } from "./util";
 
 export type Tag = {
   name: string;
@@ -13,6 +14,7 @@ type ArticleProp = {
   url: string;
   ogp: string | undefined;
   tags: string[];
+  createdAt: Date | null;
 };
 
 export class Notion {
@@ -24,7 +26,10 @@ export class Notion {
     });
   }
 
-  public async stockArticle(databaseId: string, { title, url, ogp, tags: tags }: ArticleProp): Promise<Result<string>> {
+  public async stockArticle(
+    databaseId: string,
+    { title, url, ogp, tags, createdAt }: ArticleProp
+  ): Promise<Result<string>> {
     const parameters: CreatePageParameters = {
       parent: { database_id: databaseId },
       properties: {
@@ -47,6 +52,15 @@ export class Notion {
       const multiSelect = tags.map((tag) => ({ name: tag }));
       parameters.properties.Tags = {
         multi_select: multiSelect,
+      };
+    }
+
+    if (createdAt) {
+      parameters.properties.CreatedAt = {
+        type: "date",
+        date: {
+          start: formatDate(createdAt),
+        },
       };
     }
 
