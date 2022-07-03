@@ -1,5 +1,6 @@
 import { APIResponseError, Client } from "@notionhq/client";
 import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
+import { useCallback } from "react";
 import { Result } from "./types";
 import { formatDate } from "./util";
 
@@ -17,34 +18,20 @@ type ArticleProp = {
   createdAt: Date | null;
 };
 
-export class Notion {
-  #client: Client;
+export function useNotion(auth: string) {
+  const client = new Client({ auth });
 
-  constructor(auth: string) {
-    this.#client = new Client({
-      auth,
-    });
-  }
+  const stockArticle = useCallback(async (databaseId: string, articleProps: ArticleProp): Promise<Result<string>> => {
+    const { title, url, ogp, tags, createdAt } = articleProps;
 
-  public async stockArticle(
-    databaseId: string,
-    { title, url, ogp, tags, createdAt }: ArticleProp
-  ): Promise<Result<string>> {
     const parameters: CreatePageParameters = {
       parent: { database_id: databaseId },
       properties: {
         Title: {
-          title: [
-            {
-              text: { content: title },
-            },
-          ],
           type: "title",
+          title: [{ text: { content: title } }],
         },
-        URL: {
-          url,
-          type: "url",
-        },
+        URL: { type: "url", url },
       },
     };
 
@@ -58,9 +45,7 @@ export class Notion {
     if (createdAt) {
       parameters.properties.CreatedAt = {
         type: "date",
-        date: {
-          start: formatDate(createdAt),
-        },
+        date: { start: formatDate(createdAt) },
       };
     }
 
@@ -74,7 +59,7 @@ export class Notion {
     }
 
     try {
-      await this.#client.pages.create(parameters);
+      await client.pages.create(parameters);
 
       return {
         type: "success",
@@ -99,13 +84,15 @@ export class Notion {
         },
       };
     }
-  }
+  }, []);
 
-  public async fetchTags(databaseId: string): Promise<Tag[] | undefined> {
-    const response = await this.#client.databases.retrieve({ database_id: databaseId });
+  const fetchTags = useCallback(async (databaseId: string) => {
+    const response = await client.databases.retrieve({ database_id: databaseId });
     const tags = response.properties.Tags;
     if (tags.type === "multi_select") {
       return tags.multi_select.options;
     }
-  }
+  }, []);
+
+  return { stockArticle, fetchTags };
 }

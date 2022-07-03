@@ -1,7 +1,7 @@
 import { Form, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
 import { useEffect, useState } from "react";
-import type { Tag } from "./Notion";
-import { Notion } from "./Notion";
+import type { Tag } from "./useNotion";
+import { useNotion } from "./useNotion";
 import { fetchArticle } from "./util";
 
 type Values = {
@@ -12,7 +12,7 @@ type Values = {
 
 export default function Command() {
   const preference = getPreferenceValues<{ auth: string; databaseId: string }>();
-  const notionClient = new Notion(preference.auth);
+  const { stockArticle, fetchTags } = useNotion(preference.auth)
 
   const [tags, setTags] = useState<Tag[]>([]);
 
@@ -24,7 +24,7 @@ export default function Command() {
 
     if (res.type === "success") {
       const { title, ogp } = res.data;
-      const response = await notionClient.stockArticle(preference.databaseId, { title, url, ogp, tags, createdAt });
+      const response = await stockArticle(preference.databaseId, { title, url, ogp, tags, createdAt });
       if (response.type === "failure") {
         const { name, message } = response.err;
         showToast({ title: name, message: message, style: Toast.Style.Failure });
@@ -38,7 +38,7 @@ export default function Command() {
   }
 
   useEffect(() => {
-    notionClient.fetchTags(preference.databaseId).then((res) => {
+     fetchTags(preference.databaseId).then((res) => {
       if (res) {
         setTags(res);
       }
