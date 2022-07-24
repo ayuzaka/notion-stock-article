@@ -1,8 +1,8 @@
 import { Form, ActionPanel, Action, showToast, Toast, getPreferenceValues } from "@raycast/api";
 import { Client } from "@notionhq/client";
-import { useTags } from "./useTags";
-import { stockArticle } from "./notion";
+import { fetchTags, stockArticle } from "./notion";
 import { fetchArticle } from "./util";
+import { usePromise } from "@raycast/utils";
 
 type Values = {
   url: string;
@@ -13,7 +13,7 @@ type Values = {
 export default function Command() {
   const preference = getPreferenceValues<{ auth: string; databaseId: string }>();
   const client = new Client({ auth: preference.auth });
-  const tags = useTags(client, preference.databaseId);
+  const { data: tags } = usePromise(async () => fetchTags(client, preference.databaseId))
 
   async function handleSubmit(values: Values) {
     showToast({ title: "saving...", style: Toast.Style.Animated });

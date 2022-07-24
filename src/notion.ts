@@ -79,3 +79,19 @@ export async function stockArticle(
     };
   }
 }
+
+type Tag = {
+  name: string;
+  id?: string;
+  color?: string;
+};
+
+export async function fetchTags(client: Client, databaseId: string): Promise<Tag[] | undefined> {
+  const db = await client.databases.retrieve({ database_id: databaseId });
+  const tags = db.properties["Tags"];
+  if (tags?.type === "multi_select") {
+    return tags.multi_select.options;
+  }
+
+  return;
+}
