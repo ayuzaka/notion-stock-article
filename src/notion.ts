@@ -1,6 +1,6 @@
 import { APIResponseError, Client } from "@notionhq/client";
 import type { CreatePageParameters } from "@notionhq/client/build/src/api-endpoints";
-import { Result } from "./types";
+import type { Result } from "./types";
 import { formatDate } from "./util";
 
 type ArticleProp = {
@@ -31,13 +31,13 @@ export async function stockArticle(
 
   if (tags.length > 0) {
     const multiSelect = tags.map((tag) => ({ name: tag }));
-    parameters.properties.Tags = {
+    parameters.properties["Tags"] = {
       multi_select: multiSelect,
     };
   }
 
   if (createdAt) {
-    parameters.properties.CreatedAt = {
+    parameters.properties["CreatedAt"] = {
       type: "date",
       date: { start: formatDate(createdAt) },
     };
